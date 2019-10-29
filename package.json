@@ -1,0 +1,49 @@
+{
+	"name": "sinumerik",
+	"publisher": "Namy",
+	"displayName": "sinumerik_cnc",
+	"description": "this extension is for SIEMENS CNC code.",
+	"version": "0.0.3",
+	"engines": {
+		"vscode": "*"
+	},
+	"categories": [
+		"Programming Languages",
+		"Snippets"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "sinumerik",
+				"aliases": [
+					"SIEMENS-CNC",
+					"sinumerik"
+				],
+				"extensions": [
+					".mpf",
+					".def",
+					".spf"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "sinumerik",
+				"scopeName": "source.sinu",
+				"path": "./syntaxes/sinumerik.tmLanguage.json"
+			}
+		],
+		"snippets": [
+			{
+				"language": "sinumerik",
+				"path": "./snippets/snippets.json"
+			}
+		]
+	},
+	"__metadata": {
+		"id": "e8eca719-d9f2-4735-b73d-5ec754960c14",
+		"publisherId": "06e1f8c2-fa52-4156-9a24-55356f195fd1",
+		"publisherDisplayName": "Namy"
+	}
+}

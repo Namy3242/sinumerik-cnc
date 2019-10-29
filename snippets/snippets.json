@@ -1,0 +1,45 @@
+{
+    "IF": {
+        "prefix": "IF",
+        "body": [
+            "IF (${0:True})",
+            "  ",
+            "ELSE",
+            "  ",
+            "ENDIF"
+        ],
+        "description": "Add conditional"
+    },
+    "IFG": {
+        "prefix": "IFG",
+        "body": [
+            "IF (${1:True}) GOTO${2:F} ${3:MyLabel}"
+        ],
+        "description": "Add conditional and GOTOX"
+    },
+    "IFB": {
+        "prefix": "IFB",
+        "body": [
+            "IF ((${1:Left} B_AND ${2:'B00000000'}) ${3:==} ${4:Right})",
+            "  ",
+            "ELSE",
+            "  ",
+            "ENDIF"
+        ],
+        "description": "Add conditional B_AND"
+    },
+    "O0000": {
+        "prefix": "O",
+        "body": [
+            "O${0:NNNN}"
+        ],
+        "description": "Add Program Number"
+    },
+    "N0000": {
+        "prefix": "N",
+        "body": [
+            "N${0:NNNN}"
+        ],
+        "description": "Add Sequence Number"
+    }
+}

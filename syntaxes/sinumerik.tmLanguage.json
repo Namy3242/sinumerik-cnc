@@ -1,0 +1,158 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "SIEMENS-CNC",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#sequences"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.sinumerik",
+					"match": "\\b(IF|ELSE|ENDIF|EQ|NE|LT|LE|GT|GE|AND|OR|NOT|XOR|B_AND|B_OR|B_XOR|WHILE|END|SWITCH|CASE|OF|GOTO|GOTOF|GOTOB)\\b"
+				},
+				{
+					"name": "entity.name.tag.sinumerik",
+					"match": "\\b(DISPLOF|SBLOF|CALL|STOPRE|INT|REAL|CHAR|STRING|FRAME|DEF|PROC|RET|WHEN|WHENEVER|EVERY|DO|TRUE|FALSE)\\b"
+				}
+			]	
+		},
+		"comments": {
+			"patterns": [
+				{
+				"name": "comment.line.sinumerik",
+				"begin": ";",
+				"end": "\\n"
+				}
+			]
+		},
+		"sequences": {
+			"patterns": [
+				{
+					"name": "entity.name.tag.sinumerik",
+					"match": "[:][0-9]+"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[gG][0-9]{1,3}+"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[dD][cC]"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[aA][cC][pP]+[nN]+"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[iI][cC]"
+				},
+				{
+					"name": "storage.type.sinumerik",
+					"match": "[sS]*[pP][oO][sS][aA]*"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[fF][dD]*[aA]"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[fF][lL]"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[fF][0-9]+"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[sS][0-9]+"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[tT][0-9]+"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[dD][0-9]+"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[mM][0-9]+"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[hH][0-9]+"
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{
+                    "match": "(\\+)|(\\*)|(\\/)|(\\*\\*)|(\\-)|(==)|(<>)|(>=)|(<=)|(<)|(>)|(=)",
+                    "name": "support.constant.math.sinumerik"
+                },
+				{
+                    "match": "(SIN)|(COS)|(TAN)|(ASIN)|(ACOS)|(ATAN)|(ATAN2)|(LN)|(SQRT)|(MOD)|(EXP)|(ROUND)|(TRUNC)|(POT)|(ABS)|(MOD)",
+                    "name": "string.interpolated.sinumerik"
+                },
+				{
+                    "match": "[0-9]+",
+                    "name": "constant.numeric.sinumerik"
+                },
+				{
+                    "match": "(FIX)|(FUP)|(ROUND)|(ABS)",
+                    "name": "support.constant.math.sinumerik"
+                },
+				{
+					"name": "string.regexp.sinumerik",
+					"match": "[nN][0-9]{1,5}+"
+				},
+				{
+					"name": "string.regexp.sinumerik",
+					"match": "[oO][0-9]{1,5}+"
+				},
+				{
+					"name": "string.regexp.sinumerik",
+					"match": "(\\$)[_a-zA-Z]+"
+				},
+				{
+					"name": "entity.name.class.sinumerik",
+					"match": "[_a-zA-Z]+[_a-zA-Z]+"
+				},
+				{
+					"name": "string.regexp.sinumerik",
+					"match": "[_a-zA-Z]+"
+				}
+
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.sinumerik",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.sinumerik",
+					"match": "\\\\."
+				}
+
+			]
+		}
+	},
+	"scopeName": "source.sinu"
+}
