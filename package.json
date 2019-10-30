@@ -3,7 +3,8 @@
 	"publisher": "Namy",
 	"displayName": "sinumerik_cnc",
 	"description": "this extension is for SIEMENS CNC code.",
-	"version": "0.0.3",
+	"license": "MIT",
+	"version": "0.0.4",
 	"engines": {
 		"vscode": "*"
 	},
@@ -11,6 +12,14 @@
 		"Programming Languages",
 		"Snippets"
 	],
+	"homepage": "https://github.com/Namy3242/sinumerik-cnc",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Namy3242/sinumerik-cnc.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Namy3242/sinumerik-cnc/issues"
+	},
 	"contributes": {
 		"languages": [
 			{
