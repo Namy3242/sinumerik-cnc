@@ -23,11 +23,11 @@
 			"patterns": [
 				{
 					"name": "keyword.control.sinumerik",
-					"match": "\\b(IF|ELSE|ENDIF|EQ|NE|LT|LE|GT|GE|AND|OR|NOT|XOR|B_AND|B_OR|B_XOR|WHILE|END|SWITCH|CASE|OF|GOTO|GOTOF|GOTOB)\\b"
+					"match": "\\b(IF|ELSE|ENDIF|EQ|NE|LT|LE|GT|GE|AND|OR|NOT|XOR|B_AND|B_OR|B_XOR|WHILE|ENDWHILE|FOR|ENDFOR|LOOP|ENDLOOP|SWITCH|CASE|OF|GOTO|GOTOF|GOTOB)\\b"
 				},
 				{
 					"name": "entity.name.tag.sinumerik",
-					"match": "\\b(DISPLOF|SBLOF|CALL|STOPRE|INT|REAL|CHAR|STRING|FRAME|DEF|PROC|RET|WHEN|WHENEVER|EVERY|DO|TRUE|FALSE)\\b"
+					"match": "\\b(DISPLOF|SBLOF|CALL|STOPRE|INT|REAL|CHAR|AXIS|STRING|FRAME|DEF|PROC|RET|WHEN|WHENEVER|EVERY|DO|TRUE|FALSE)\\b"
 				}
 			]	
 		},
@@ -44,7 +44,7 @@
 			"patterns": [
 				{
 					"name": "entity.name.tag.sinumerik",
-					"match": "[:][0-9]+"
+					"match": "[0-9]+"
 				},
 				{
 					"name": "markup.bold.sinumerik",
@@ -56,7 +56,19 @@
 				},
 				{
 					"name": "markup.bold.sinumerik",
-					"match": "[aA][cC][pP]+[nN]+"
+					"match": "\\b[sS]\\b"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "\\b[fF][aA]{0,1}\\b"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "\\b[xX|yY|zZ]{1}\\b"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "[aA][cC][pP|nN]{0,1}"
 				},
 				{
 					"name": "markup.bold.sinumerik",
@@ -68,7 +80,11 @@
 				},
 				{
 					"name": "markup.bold.sinumerik",
-					"match": "[fF][dD]*[aA]"
+					"match": "[dD][aA]{2}+"
+				},
+				{
+					"name": "markup.bold.sinumerik",
+					"match": "\\b[fF][aA]\\b"
 				},
 				{
 					"name": "markup.bold.sinumerik",
@@ -76,7 +92,7 @@
 				},
 				{
 					"name": "markup.bold.sinumerik",
-					"match": "[fF][0-9]+"
+					"match": "[fF|xX|yY|zZ][0-9]+"
 				},
 				{
 					"name": "markup.bold.sinumerik",
@@ -97,7 +113,7 @@
 				{
 					"name": "markup.bold.sinumerik",
 					"match": "[hH][0-9]+"
-				}
+				}				
 			]
 		},
 		"operators": {
@@ -107,12 +123,8 @@
                     "name": "support.constant.math.sinumerik"
                 },
 				{
-                    "match": "(SIN)|(COS)|(TAN)|(ASIN)|(ACOS)|(ATAN)|(ATAN2)|(LN)|(SQRT)|(MOD)|(EXP)|(ROUND)|(TRUNC)|(POT)|(ABS)|(MOD)",
-                    "name": "string.interpolated.sinumerik"
-                },
-				{
-                    "match": "[0-9]+",
-                    "name": "constant.numeric.sinumerik"
+                    "match": "\\b(SIN)|(COS)|(TAN)|(ASIN)|(ACOS)|(ATAN2)|(ATAN)|(LN)|(SQRT)|(MOD)|(EXP)|(ROUND)|(TRUNC)|(POT)|(ABS)|(MOD)\\b",
+                    "name": "support.constant.math.sinumerik"
                 },
 				{
                     "match": "(FIX)|(FUP)|(ROUND)|(ABS)",
@@ -127,16 +139,12 @@
 					"match": "[oO][0-9]{1,5}+"
 				},
 				{
+					"name": "entity.name.class.sinumerik",
+					"match": "[_a-zA-Z]+[_a-zA-Z]+[_a-zA-Z0-9]+"
+				},
+				{
 					"name": "string.regexp.sinumerik",
 					"match": "(\\$)[_a-zA-Z]+"
-				},
-				{
-					"name": "entity.name.class.sinumerik",
-					"match": "[_a-zA-Z]+[_a-zA-Z]+"
-				},
-				{
-					"name": "string.regexp.sinumerik",
-					"match": "[_a-zA-Z]+"
 				}
 
 			]

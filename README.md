@@ -15,6 +15,7 @@ Syntax highlighting and snipets are covered for basic CNC command.
 Initial release.
 
 ### 0.0.2
+
 ### 0.0.3
  
 fixed some bugs.
@@ -22,3 +23,8 @@ fixed some bugs.
 ### 0.0.4
 
 add source.
+
+### 0.0.5
+ 
+fixed some bugs(Highlight). ex) FAKTOR
+
