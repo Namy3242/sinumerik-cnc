@@ -52,7 +52,7 @@
 				},
 				{
 					"name": "markup.bold.sinumerik",
-					"match": "[dD][cC]"
+					"match": "[dD][cC](?![A-Za-z0-9_])"
 				},
 				{
 					"name": "markup.bold.sinumerik",
@@ -64,23 +64,23 @@
 				},
 				{
 					"name": "markup.bold.sinumerik",
-					"match": "\\b[xX|yY|zZ]{1}\\b"
+					"match": "\\b[xXyYzZ]\\b"
 				},
 				{
 					"name": "markup.bold.sinumerik",
-					"match": "[aA][cC][pP|nN]{0,1}"
+					"match": "[aA][cC][pPnN]?(?![A-Za-z0-9_])"
 				},
 				{
 					"name": "markup.bold.sinumerik",
-					"match": "[iI][cC]"
+					"match": "[iI][cC](?![A-Za-z0-9_])"
 				},
 				{
 					"name": "storage.type.sinumerik",
-					"match": "[sS]*[pP][oO][sS][aA]*"
+					"match": "\\b[sS]?[pP][oO][sS][aA]?(?![A-Za-z0-9_])"
 				},
 				{
 					"name": "markup.bold.sinumerik",
-					"match": "[dD][aA]{2}+"
+					"match": "[dD][aA]{2,}(?![A-Za-z0-9_])"
 				},
 				{
 					"name": "markup.bold.sinumerik",
@@ -88,11 +88,11 @@
 				},
 				{
 					"name": "markup.bold.sinumerik",
-					"match": "[fF][lL]"
+					"match": "[fF][lL](?![A-Za-z_])"
 				},
 				{
 					"name": "markup.bold.sinumerik",
-					"match": "[fF|xX|yY|zZ][0-9]+"
+					"match": "[fFxXyYzZ][0-9]+"
 				},
 				{
 					"name": "markup.bold.sinumerik",
@@ -123,11 +123,11 @@
                     "name": "support.constant.math.sinumerik"
                 },
 				{
-                    "match": "\\b(SIN)|(COS)|(TAN)|(ASIN)|(ACOS)|(ATAN2)|(ATAN)|(LN)|(SQRT)|(MOD)|(EXP)|(ROUND)|(TRUNC)|(POT)|(ABS)|(MOD)\\b",
+                    "match": "\\b(SIN|COS|TAN|ASIN|ACOS|ATAN2|ATAN|LN|SQRT|MOD|EXP|ROUND|TRUNC|POT|ABS)\\b",
                     "name": "support.constant.math.sinumerik"
                 },
 				{
-                    "match": "(FIX)|(FUP)|(ROUND)|(ABS)",
+                    "match": "\\b(FIX|FUP|ROUND|ABS)\\b",
                     "name": "support.constant.math.sinumerik"
                 },
 				{
@@ -140,11 +140,11 @@
 				},
 				{
 					"name": "entity.name.class.sinumerik",
-					"match": "[_a-zA-Z]+[_a-zA-Z]+[_a-zA-Z0-9]+"
+					"match": "[_a-zA-Z][_a-zA-Z0-9]*"
 				},
 				{
 					"name": "string.regexp.sinumerik",
-					"match": "(\\$)[_a-zA-Z]+"
+					"match": "(\\$)[_a-zA-Z][_a-zA-Z0-9]*"
 				}
 
 			]
