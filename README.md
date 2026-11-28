@@ -146,3 +146,11 @@ add source.
  
 fixed some bugs(Highlight). ex) FAKTOR
 
+
+## Support
+
+If this extension saves you time at the machine, you can support its development:
+
+- [GitHub Sponsors](https://github.com/sponsors/Namy3242)
+
+Feature requests from sponsors get priority. Thank you!
