@@ -52,6 +52,25 @@ of a file depends on machine data ($MC_GCODE_RESET_VALUES), which the
 extension cannot know, so groups the file never sets are left out
 instead of being guessed.
 
+### Structure diagnostics
+
+Three structural problems are flagged as warnings while you edit:
+
+- **Unmatched control structures** — the block structures
+  `IF … ENDIF`, `LOOP … ENDLOOP`, `WHILE … ENDWHILE`,
+  `FOR … ENDFOR`, `REPEAT … UNTIL` and `CASE … ENDCASE` must be
+  opened and closed in pairs. An opener that is never closed, and a
+  closer without a matching opener, are both flagged. Keywords in
+  comments and strings are ignored. Two look-alikes are deliberately
+  not treated as block openers: `IF <condition> GOTOF <label>` is a
+  conditional jump, and `REPEAT <label> P=<n>` repeats a program
+  section rather than opening a loop.
+- **Duplicate block numbers** — an `N…` block number at the start of
+  a block may be used only once per file. Labels (`NAME:`) are not
+  block numbers.
+- **Overlong blocks** — one block may be at most 512 characters,
+  comment included.
+
 ## Release Notes
 
 Syntax highlighting and snipets are covered for basic CNC command.
