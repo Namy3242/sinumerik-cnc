@@ -73,15 +73,30 @@ Three structural problems are flagged as warnings while you edit:
 
 ### Go to definition and find references
 
-Within a file, F12 (go to definition) and Shift+F12 (find all
-references) work for the names a program defines itself:
+F12 (go to definition) and Shift+F12 (find all references) work
+for the names a program defines itself:
 
 - **DEF variables** — `DEF INT MYVAR`, including several variables
   in one statement (`DEF REAL X, Y`), array sizes and initial
-  values.
+  values. Resolved within the same file only.
 - **Block labels** — `NAME:` at the start of a block, so a jump
   (`GOTOF`, `GOTOB`, `GOTOS`, `GOTO`) can jump to its target.
-- **Subprograms** — `PROC NAME(...)` definitions in the same file.
+  Resolved within the same file only.
+- **Subprograms** — `PROC NAME(...)` definitions, found across
+  files (see below).
+
+For subprograms, a definition in the same file wins. If the file
+does not define the name, the extension searches the workspace:
+every `.mpf` / `.spf` / `.def` file is indexed for its `PROC`
+definitions, and a call jumps to the definition wherever it is.
+If no file defines a `PROC` with that name, the SINUMERIK
+convention applies — a subprogram lives in the file of the same
+name — and the call jumps to the top of that file (`NAME.spf`)
+instead. When several files define the same name, all of them
+are offered. The cross-file lookup applies to names used as
+subprogram calls: after `CALL` or `MCALL`, in an `EXTERN`
+declaration, or as a call at the start of a block. The index
+follows files as they are created, edited and deleted.
 
 Names are matched case-insensitively, as on the control, and
 occurrences inside comments and strings are ignored.

@@ -17,9 +17,11 @@
 //   (IF/LOOP/WHILE/FOR/REPEAT/CASE), duplicate block numbers and
 //   blocks longer than 512 characters are flagged as warnings
 //   (see src/structure.js).
-// - Go to definition / find references within a file for DEF
-//   variables, block labels and PROC subprograms (see
-//   src/symbols.js).
+// - Go to definition / find references for DEF variables, block
+//   labels and PROC subprograms (see src/symbols.js). Subprogram
+//   definitions are also found across the files of the workspace:
+//   an index of every PROC definition and program file is kept up
+//   to date (see src/workspaceIndex.js).
 // - MCALL warning: a modal call (MCALL ...) that is still active at
 //   the program end was probably meant to be cancelled with a bare
 //   MCALL block (see src/mcall.js).
@@ -32,6 +34,14 @@ const { modalStateAt, formatModalState, gcodeAtOffset } = require('./src/modal')
 const { checkStructure } = require('./src/structure');
 const { collectDefinitions, collectOccurrences } = require('./src/symbols');
 const { checkMcall } = require('./src/mcall');
+const {
+	createIndex,
+	buildIndex,
+	indexFile,
+	removeFile,
+	resolveSubprogram,
+	subprogramReferenceAt
+} = require('./src/workspaceIndex');
 
 const SELECTOR = { language: 'sinumerik' };
 
@@ -157,7 +167,103 @@ function activate(context) {
 		})
 	);
 
-	// --- Go to definition / find references (same file) ---------------
+	// --- Workspace index of subprogram definitions ------------------
+	// Keys are URI strings, so an open document and the same file on
+	// disk share one entry; the in-memory text of an open document
+	// wins over the disk copy.
+	let workspaceIndex = createIndex();
+	const TARGET_GLOB = '**/*.{mpf,spf,def}';
+	const indexKey = (uri) => uri.toString();
+
+	const indexDocument = (document) => {
+		indexFile(workspaceIndex, indexKey(document.uri), document.getText());
+	};
+
+	const indexFromDisk = async (uri) => {
+		try {
+			const bytes = await vscode.workspace.fs.readFile(uri);
+			indexFile(
+				workspaceIndex,
+				indexKey(uri),
+				new TextDecoder().decode(bytes)
+			);
+		} catch {
+			removeFile(workspaceIndex, indexKey(uri));
+		}
+	};
+
+	const rebuildWorkspaceIndex = async () => {
+		const openDocs = new Map();
+		for (const doc of vscode.workspace.textDocuments) {
+			if (doc.languageId === 'sinumerik') {
+				openDocs.set(indexKey(doc.uri), doc);
+			}
+		}
+		const entries = [];
+		const handled = new Set();
+		for (const uri of await vscode.workspace.findFiles(TARGET_GLOB)) {
+			const key = indexKey(uri);
+			handled.add(key);
+			const open = openDocs.get(key);
+			if (open) {
+				entries.push({ path: key, text: open.getText() });
+				continue;
+			}
+			try {
+				const bytes = await vscode.workspace.fs.readFile(uri);
+				entries.push({
+					path: key,
+					text: new TextDecoder().decode(bytes)
+				});
+			} catch {
+				// An unreadable file contributes nothing to the index.
+			}
+		}
+		workspaceIndex = buildIndex(entries);
+		// Open documents findFiles did not return (e.g. untitled
+		// buffers) still index their PROC definitions.
+		for (const [key, doc] of openDocs) {
+			if (!handled.has(key)) {
+				indexDocument(doc);
+			}
+		}
+	};
+	void rebuildWorkspaceIndex();
+
+	const indexWatcher = vscode.workspace.createFileSystemWatcher(TARGET_GLOB);
+	indexWatcher.onDidCreate((uri) => void indexFromDisk(uri));
+	indexWatcher.onDidChange((uri) => {
+		const open = vscode.workspace.textDocuments.find(
+			(doc) => indexKey(doc.uri) === indexKey(uri)
+		);
+		if (open) {
+			indexDocument(open);
+		} else {
+			void indexFromDisk(uri);
+		}
+	});
+	indexWatcher.onDidDelete((uri) => removeFile(workspaceIndex, indexKey(uri)));
+	context.subscriptions.push(
+		indexWatcher,
+		vscode.workspace.onDidOpenTextDocument((doc) => {
+			if (doc.languageId === 'sinumerik') {
+				indexDocument(doc);
+			}
+		}),
+		vscode.workspace.onDidChangeTextDocument((e) => {
+			if (e.document.languageId === 'sinumerik') {
+				indexDocument(e.document);
+			}
+		}),
+		vscode.workspace.onDidCloseTextDocument((doc) => {
+			if (doc.languageId === 'sinumerik') {
+				// Keep the file's on-disk definitions, if any.
+				void indexFromDisk(doc.uri);
+			}
+		})
+	);
+
+	// --- Go to definition / find references ---------------------------
 	const wordAt = (document, position) => {
 		const wordRange = document.getWordRangeAtPosition(
 			position,
@@ -176,7 +282,7 @@ function activate(context) {
 
 	context.subscriptions.push(
 		vscode.languages.registerDefinitionProvider(SELECTOR, {
-			provideDefinition(document, position) {
+			async provideDefinition(document, position) {
 				const word = wordAt(document, position);
 				if (!word) {
 					return undefined;
@@ -184,10 +290,41 @@ function activate(context) {
 				const upper = word.toUpperCase();
 				const definitions = collectDefinitions(document.getText())
 					.filter((def) => def.upper === upper);
-				if (definitions.length === 0) {
+				if (definitions.length > 0) {
+					return definitions.map((def) => toLocation(document, def));
+				}
+				// Cross-file: only a name used as a subprogram call
+				// resolves through the workspace index. DEF variables
+				// and block labels stay within the file.
+				const reference = subprogramReferenceAt(
+					document.getText(),
+					document.offsetAt(position)
+				);
+				if (!reference || reference.name.toUpperCase() !== upper) {
 					return undefined;
 				}
-				return definitions.map((def) => toLocation(document, def));
+				const locations = [];
+				for (const candidate of resolveSubprogram(workspaceIndex, word)) {
+					if (candidate.path === indexKey(document.uri)) {
+						continue;
+					}
+					const uri = vscode.Uri.parse(candidate.path);
+					try {
+						const target = await vscode.workspace.openTextDocument(uri);
+						locations.push(
+							new vscode.Location(
+								uri,
+								new vscode.Range(
+									target.positionAt(candidate.start),
+									target.positionAt(candidate.end)
+								)
+							)
+						);
+					} catch {
+						// The indexed file disappeared in the meantime.
+					}
+				}
+				return locations.length > 0 ? locations : undefined;
 			}
 		}),
 		vscode.languages.registerReferenceProvider(SELECTOR, {
