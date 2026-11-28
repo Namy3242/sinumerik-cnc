@@ -1,62 +1,62 @@
 {
-	"name": "sinumerik",
-	"publisher": "Namy",
-	"displayName": "sinumerik_cnc",
-	"description": "this extension is for SIEMENS CNC code.",
-	"license": "MIT",
-	"version": "0.1.0",
-	"engines": {
-		"vscode": "*"
-	},
-	"main": "./extension.js",
-	"activationEvents": [
-		"onLanguage:sinumerik"
-	],
-	"categories": [
-		"Programming Languages",
-		"Snippets"
-	],
-	"homepage": "https://github.com/Namy3242/sinumerik-cnc",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Namy3242/sinumerik-cnc.git"
-	},
-	"bugs": {
-		"url": "https://github.com/Namy3242/sinumerik-cnc/issues"
-	},
-	"contributes": {
-		"languages": [
-			{
-				"id": "sinumerik",
-				"aliases": [
-					"SIEMENS-CNC",
-					"sinumerik"
-				],
-				"extensions": [
-					".mpf",
-					".def",
-					".spf"
-				],
-				"configuration": "./language-configuration.json"
-			}
-		],
-		"grammars": [
-			{
-				"language": "sinumerik",
-				"scopeName": "source.sinu",
-				"path": "./syntaxes/sinumerik.tmLanguage.json"
-			}
-		],
-		"snippets": [
-			{
-				"language": "sinumerik",
-				"path": "./snippets/snippets.json"
-			}
-		]
-	},
-	"__metadata": {
-		"id": "e8eca719-d9f2-4735-b73d-5ec754960c14",
-		"publisherId": "06e1f8c2-fa52-4156-9a24-55356f195fd1",
-		"publisherDisplayName": "Namy"
-	}
+  "name": "sinumerik",
+  "publisher": "Namy",
+  "displayName": "sinumerik_cnc",
+  "description": "this extension is for SIEMENS CNC code.",
+  "license": "MIT",
+  "version": "0.2.0",
+  "engines": {
+    "vscode": "*"
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:sinumerik"
+  ],
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "homepage": "https://github.com/Namy3242/sinumerik-cnc",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Namy3242/sinumerik-cnc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Namy3242/sinumerik-cnc/issues"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "sinumerik",
+        "aliases": [
+          "SIEMENS-CNC",
+          "sinumerik"
+        ],
+        "extensions": [
+          ".mpf",
+          ".def",
+          ".spf"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "sinumerik",
+        "scopeName": "source.sinu",
+        "path": "./syntaxes/sinumerik.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "sinumerik",
+        "path": "./snippets/snippets.json"
+      }
+    ]
+  },
+  "__metadata": {
+    "id": "e8eca719-d9f2-4735-b73d-5ec754960c14",
+    "publisherId": "06e1f8c2-fa52-4156-9a24-55356f195fd1",
+    "publisherDisplayName": "Namy"
+  }
 }
