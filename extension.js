@@ -1,18 +1,44 @@
 'use strict';
 
-// Cycle parameter-name hints for SINUMERIK programs.
+// Editor assistance for SINUMERIK programs.
 //
-// Shows the name of each cycle argument as an inlay hint, explains
-// cycles and arguments on hover, and warns when a call passes more
-// arguments than the cycle takes. Only the cycles listed in
-// src/cycles.js (verified against the Siemens programming manual)
-// are supported.
+// - Cycle parameter-name hints: shows the name of each cycle argument
+//   as an inlay hint, explains cycles and arguments on hover, and
+//   warns when a call passes more arguments than the cycle takes.
+//   Only the cycles listed in src/cycles.js (verified against the
+//   Siemens programming manual) are supported.
+// - G-code hover: explains the codes listed in src/gcodes.js
+//   (meaning, G group, modal or non-modal).
+// - Modal state tracker: the status bar shows the modal codes the
+//   file itself has selected up to the cursor line. Groups the file
+//   never sets are not shown: their power-on defaults come from
+//   machine data ($MC_GCODE_RESET_VALUES), not from the program.
 
 const vscode = require('vscode');
 const { CYCLES } = require('./src/cycles');
 const { parseCycleCalls, signature } = require('./src/parser');
+const { GROUP_NAMES } = require('./src/gcodes');
+const { modalStateAt, formatModalState, gcodeAtOffset } = require('./src/modal');
 
 const SELECTOR = { language: 'sinumerik' };
+
+function gcodeMarkdown(entry) {
+	const md = new vscode.MarkdownString();
+	const groupName = GROUP_NAMES[entry.group] || '';
+	md.appendMarkdown(`**${entry.code}** — ${entry.desc}\n\n`);
+	md.appendMarkdown(
+		`G group ${entry.group}${groupName ? ` (${groupName})` : ''} · ` +
+		(entry.modal ? 'Modal' : 'Non-modal (effective in its block only)')
+	);
+	if (entry.group === 3) {
+		md.appendMarkdown(
+			'\n\nFrame commands of different components ' +
+			'(translation / rotation / scaling / mirroring) combine; ' +
+			'the absolute form replaces, the additive form (A…) adds.'
+		);
+	}
+	return md;
+}
 
 function signatureMarkdown(name) {
 	const md = new vscode.MarkdownString();
@@ -102,6 +128,17 @@ function activate(context) {
 						return new vscode.Hover(signatureMarkdown(word), wordRange);
 					}
 				}
+				// A G code or modal program word from the dictionary.
+				const hit = gcodeAtOffset(document.getText(), offset);
+				if (hit) {
+					return new vscode.Hover(
+						gcodeMarkdown(hit.entry),
+						new vscode.Range(
+							document.positionAt(hit.start),
+							document.positionAt(hit.end)
+						)
+					);
+				}
 				return undefined;
 			}
 		})
@@ -146,6 +183,51 @@ function activate(context) {
 	for (const document of vscode.workspace.textDocuments) {
 		refreshDiagnostics(document);
 	}
+
+	// --- Status bar: modal state up to the cursor line ----------------
+	const statusBar = vscode.window.createStatusBarItem(
+		vscode.StatusBarAlignment.Left,
+		100
+	);
+	statusBar.name = 'SINUMERIK modal state';
+	context.subscriptions.push(statusBar);
+
+	const updateStatusBar = () => {
+		const editor = vscode.window.activeTextEditor;
+		if (!editor || editor.document.languageId !== 'sinumerik') {
+			statusBar.hide();
+			return;
+		}
+		// Scan through the end of the cursor line: the state shown is
+		// the state in effect on that line.
+		const lineEnd = editor.document.lineAt(editor.selection.active.line).range.end;
+		const offset = editor.document.offsetAt(lineEnd);
+		const state = modalStateAt(editor.document.getText(), offset);
+		if (state.length === 0) {
+			statusBar.hide();
+			return;
+		}
+		statusBar.text = `Modal: ${formatModalState(state)}`;
+		statusBar.tooltip =
+			'Modal G-code state selected in this file up to the cursor line.\n' +
+			'Groups the file has not set are not shown — their defaults ' +
+			'depend on machine data ($MC_GCODE_RESET_VALUES).';
+		statusBar.show();
+	};
+
+	context.subscriptions.push(
+		vscode.window.onDidChangeActiveTextEditor(updateStatusBar),
+		vscode.window.onDidChangeTextEditorSelection(updateStatusBar),
+		vscode.workspace.onDidChangeTextDocument((e) => {
+			if (
+				vscode.window.activeTextEditor &&
+				e.document === vscode.window.activeTextEditor.document
+			) {
+				updateStatusBar();
+			}
+		})
+	);
+	updateStatusBar();
 }
 
 function deactivate() {}

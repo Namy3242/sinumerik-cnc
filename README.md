@@ -27,6 +27,31 @@ Siemens programming manual — only these three for now):
 Inlay hints require the VS Code setting `editor.inlayHints.enabled`
 to be on (it is by default).
 
+### G-code hover
+
+Hovering a G code or a modal program word shows its meaning, its
+G-group number, and whether it is modal (stays in effect until
+replaced) or non-modal (effective in its block only). The dictionary
+covers 37 codes whose group assignments were verified against the
+official Siemens programming manual — the motion group (G0, G1, G2,
+G3, CIP, G33), dwell/home commands (G4, G74, G75), the programmable
+frame commands (TRANS, ATRANS, ROT, AROT, SCALE, ASCALE, MIRROR,
+AMIRROR), plane selection (G17–G19), tool radius compensation
+(G40–G42), work offsets (G500, G54–G57, plus the G505–G599 range),
+frame suppression (G53, SUPA), dimensioning (G90, G91) and feed types
+(G93–G97).
+
+### Modal state in the status bar
+
+The status bar shows the modal codes currently in effect, inferred
+by scanning the file up to the cursor line — for example
+`Modal: G1 | G17 | G54 | G90`. It updates as the cursor moves.
+
+Only codes the file itself selects are shown. The state at the start
+of a file depends on machine data ($MC_GCODE_RESET_VALUES), which the
+extension cannot know, so groups the file never sets are left out
+instead of being guessed.
+
 ## Release Notes
 
 Syntax highlighting and snipets are covered for basic CNC command.
