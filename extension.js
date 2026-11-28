@@ -13,12 +13,17 @@
 //   file itself has selected up to the cursor line. Groups the file
 //   never sets are not shown: their power-on defaults come from
 //   machine data ($MC_GCODE_RESET_VALUES), not from the program.
+// - Structural diagnostics: unmatched control structures
+//   (IF/LOOP/WHILE/FOR/REPEAT/CASE), duplicate block numbers and
+//   blocks longer than 512 characters are flagged as warnings
+//   (see src/structure.js).
 
 const vscode = require('vscode');
 const { CYCLES } = require('./src/cycles');
 const { parseCycleCalls, signature } = require('./src/parser');
 const { GROUP_NAMES } = require('./src/gcodes');
 const { modalStateAt, formatModalState, gcodeAtOffset } = require('./src/modal');
+const { checkStructure } = require('./src/structure');
 
 const SELECTOR = { language: 'sinumerik' };
 
@@ -144,7 +149,7 @@ function activate(context) {
 		})
 	);
 
-	// --- Diagnostics: more arguments than the cycle takes -------------
+	// --- Diagnostics: cycle argument count + program structure --------
 	const diagnostics = vscode.languages.createDiagnosticCollection('sinumerik');
 	context.subscriptions.push(diagnostics);
 
@@ -152,8 +157,9 @@ function activate(context) {
 		if (document.languageId !== 'sinumerik') {
 			return;
 		}
+		const text = document.getText();
 		const found = [];
-		for (const call of parseCycleCalls(document.getText(), CYCLES)) {
+		for (const call of parseCycleCalls(text, CYCLES)) {
 			if (call.excess === 0) {
 				continue;
 			}
@@ -167,6 +173,18 @@ function activate(context) {
 			const diagnostic = new vscode.Diagnostic(
 				range,
 				`${call.name} takes at most ${max} arguments, but ${call.args.length} were given.`,
+				vscode.DiagnosticSeverity.Warning
+			);
+			diagnostic.source = 'sinumerik';
+			found.push(diagnostic);
+		}
+		for (const issue of checkStructure(text)) {
+			const diagnostic = new vscode.Diagnostic(
+				new vscode.Range(
+					document.positionAt(issue.start),
+					document.positionAt(issue.end)
+				),
+				issue.message,
 				vscode.DiagnosticSeverity.Warning
 			);
 			diagnostic.source = 'sinumerik';
