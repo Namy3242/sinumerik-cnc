@@ -41,5 +41,45 @@
             "N${0:NNNN}"
         ],
         "description": "Add Sequence Number"
+    },
+    "CYCLE82": {
+        "prefix": "CYCLE82",
+        "body": [
+            "CYCLE82(${1:2}, ${2:0}, ${3:1}, ${4:-10}, ${5:}, ${6:0})$0"
+        ],
+        "description": "Drilling, counterboring (RTP, RFP, SDIS, DP, DPR, DTB)"
+    },
+    "IFN": {
+        "prefix": "IFN",
+        "body": [
+            "IF (${1:True})",
+            "  $0",
+            "ENDIF"
+        ],
+        "description": "Add conditional without ELSE"
+    },
+    "WHILE": {
+        "prefix": "WHILE",
+        "body": [
+            "WHILE (${1:R1<10})",
+            "  $0",
+            "ENDWHILE"
+        ],
+        "description": "Add WHILE loop"
+    },
+    "FRAME": {
+        "prefix": "FRAME",
+        "body": [
+            "G54",
+            "TRANS X${1:0} Y${2:0} Z${3:0}$0"
+        ],
+        "description": "Select work offset G54 and set programmable translation"
+    },
+    "WHENEVER": {
+        "prefix": "WHENEVER",
+        "body": [
+            "WHENEVER \\$AA_IW[${1:X}] > ${2:100} DO \\$AC_OVR=${3:50}$0"
+        ],
+        "description": "Add synchronized action (WHENEVER ... DO ...)"
     }
 }

@@ -17,6 +17,12 @@
 //   (IF/LOOP/WHILE/FOR/REPEAT/CASE), duplicate block numbers and
 //   blocks longer than 512 characters are flagged as warnings
 //   (see src/structure.js).
+// - Go to definition / find references within a file for DEF
+//   variables, block labels and PROC subprograms (see
+//   src/symbols.js).
+// - MCALL warning: a modal call (MCALL ...) that is still active at
+//   the program end was probably meant to be cancelled with a bare
+//   MCALL block (see src/mcall.js).
 
 const vscode = require('vscode');
 const { CYCLES } = require('./src/cycles');
@@ -24,6 +30,8 @@ const { parseCycleCalls, signature } = require('./src/parser');
 const { GROUP_NAMES } = require('./src/gcodes');
 const { modalStateAt, formatModalState, gcodeAtOffset } = require('./src/modal');
 const { checkStructure } = require('./src/structure');
+const { collectDefinitions, collectOccurrences } = require('./src/symbols');
+const { checkMcall } = require('./src/mcall');
 
 const SELECTOR = { language: 'sinumerik' };
 
@@ -149,7 +157,64 @@ function activate(context) {
 		})
 	);
 
-	// --- Diagnostics: cycle argument count + program structure --------
+	// --- Go to definition / find references (same file) ---------------
+	const wordAt = (document, position) => {
+		const wordRange = document.getWordRangeAtPosition(
+			position,
+			/[A-Za-z_][A-Za-z0-9_]*/
+		);
+		return wordRange ? document.getText(wordRange) : undefined;
+	};
+	const toLocation = (document, span) =>
+		new vscode.Location(
+			document.uri,
+			new vscode.Range(
+				document.positionAt(span.start),
+				document.positionAt(span.end)
+			)
+		);
+
+	context.subscriptions.push(
+		vscode.languages.registerDefinitionProvider(SELECTOR, {
+			provideDefinition(document, position) {
+				const word = wordAt(document, position);
+				if (!word) {
+					return undefined;
+				}
+				const upper = word.toUpperCase();
+				const definitions = collectDefinitions(document.getText())
+					.filter((def) => def.upper === upper);
+				if (definitions.length === 0) {
+					return undefined;
+				}
+				return definitions.map((def) => toLocation(document, def));
+			}
+		}),
+		vscode.languages.registerReferenceProvider(SELECTOR, {
+			provideReferences(document, position, context) {
+				const word = wordAt(document, position);
+				if (!word) {
+					return undefined;
+				}
+				const text = document.getText();
+				let occurrences = collectOccurrences(text, word);
+				if (!context.includeDeclaration) {
+					const upper = word.toUpperCase();
+					const definitionStarts = new Set(
+						collectDefinitions(text)
+							.filter((def) => def.upper === upper)
+							.map((def) => def.start)
+					);
+					occurrences = occurrences.filter(
+						(occ) => !definitionStarts.has(occ.start)
+					);
+				}
+				return occurrences.map((occ) => toLocation(document, occ));
+			}
+		})
+	);
+
+	// --- Diagnostics: cycle arguments, structure, modal calls ---------
 	const diagnostics = vscode.languages.createDiagnosticCollection('sinumerik');
 	context.subscriptions.push(diagnostics);
 
@@ -179,6 +244,18 @@ function activate(context) {
 			found.push(diagnostic);
 		}
 		for (const issue of checkStructure(text)) {
+			const diagnostic = new vscode.Diagnostic(
+				new vscode.Range(
+					document.positionAt(issue.start),
+					document.positionAt(issue.end)
+				),
+				issue.message,
+				vscode.DiagnosticSeverity.Warning
+			);
+			diagnostic.source = 'sinumerik';
+			found.push(diagnostic);
+		}
+		for (const issue of checkMcall(text)) {
 			const diagnostic = new vscode.Diagnostic(
 				new vscode.Range(
 					document.positionAt(issue.start),

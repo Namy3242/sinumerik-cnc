@@ -71,6 +71,39 @@ Three structural problems are flagged as warnings while you edit:
 - **Overlong blocks** — one block may be at most 512 characters,
   comment included.
 
+### Go to definition and find references
+
+Within a file, F12 (go to definition) and Shift+F12 (find all
+references) work for the names a program defines itself:
+
+- **DEF variables** — `DEF INT MYVAR`, including several variables
+  in one statement (`DEF REAL X, Y`), array sizes and initial
+  values.
+- **Block labels** — `NAME:` at the start of a block, so a jump
+  (`GOTOF`, `GOTOB`, `GOTOS`, `GOTO`) can jump to its target.
+- **Subprograms** — `PROC NAME(...)` definitions in the same file.
+
+Names are matched case-insensitively, as on the control, and
+occurrences inside comments and strings are ignored.
+
+### Modal call (MCALL) warning
+
+`MCALL <name>(...)` makes a subprogram or cycle modal: it runs
+again after every traversing block until it is cancelled with a
+bare `MCALL` block. If a modal call is still active when the
+program ends (`M2`, `M30`, `M17`, `RET`) — or the file simply
+ends — the `MCALL` is flagged with a warning, because a forgotten
+cancellation is a common source of surprising extra calls.
+
+### Snippets
+
+Besides the original snippets, the following are included:
+`CYCLE82` (drilling cycle call with a placeholder for each
+parameter), `IFN` (IF … ENDIF without ELSE), `WHILE`
+(WHILE … ENDWHILE), `FRAME` (G54 plus a TRANS translation) and
+`WHENEVER` (a synchronized action, `WHENEVER … DO …`). Tab stops
+move through the values that need editing.
+
 ## Release Notes
 
 Syntax highlighting and snipets are covered for basic CNC command.
